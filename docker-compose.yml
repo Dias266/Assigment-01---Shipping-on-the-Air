@@ -1,0 +1,54 @@
+version: "3.9"
+
+services:
+
+  # ── Order Service ────────────────────────────────────────────────────────────
+  order-service:
+    build: ./services/order-service
+    container_name: order-service
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+      - NODE_ENV=development
+    restart: unless-stopped
+
+  # ── Tracking Service ─────────────────────────────────────────────────────────
+  tracking-service:
+    build: ./services/tracking-service
+    container_name: tracking-service
+    ports:
+      - "3002:3002"
+    environment:
+      - PORT=3002
+      - NODE_ENV=development
+    restart: unless-stopped
+
+  # ── Mission Service ──────────────────────────────────────────────────────────
+  mission-service:
+    build: ./services/mission-service
+    container_name: mission-service
+    ports:
+      - "3003:3003"
+    environment:
+      - PORT=3003
+      - NODE_ENV=development
+    restart: unless-stopped
+
+  # ── Frontend ─────────────────────────────────────────────────────────────────
+  frontend:
+    image: node:20-alpine
+    container_name: frontend
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+    ports:
+      - "5173:5173"
+    environment:
+      - NODE_ENV=development
+    command: sh -c "npm install && npm run dev -- --host"
+    depends_on:
+      - order-service
+      - tracking-service
+      - mission-service
+    restart: unless-stopped
